@@ -1,0 +1,40 @@
+server:
+  port: 8091
+
+spring:
+  application:
+    name: auth_server
+  datasource:
+    url: jdbc:mysql://localhost:3306/auth_server
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+        id:
+          new_generator_mappings: true
+        show:
+          sql: true
+        format_sql: true
+        hb2dll:
+          auto: update
+    generate-ddl: true
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+
+test:
+ jwt:
+  value:
+    secret-key: test_project
+    expired-time: 86400
+    refresh-time: 864000

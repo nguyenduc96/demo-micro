@@ -15,6 +15,11 @@ spring:
           uri: http://localhost:8090/
           predicates:
             - Path=/service2/**
+        - id: auth_server
+          uri: http://localhost:8091/
+          predicates:
+            - Path=/**
+
 server:
   port: 8088
 
