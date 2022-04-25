@@ -1,9 +1,10 @@
 package com.example.authserver.service;
 
+import com.example.authserver.domain.dto.JwtResponse;
+import com.example.authserver.domain.dto.UserDTO;
+import com.example.authserver.domain.model.*;
 import com.example.authserver.helper.ResponseAPI;
-import com.example.authserver.model.*;
 import com.example.authserver.repository.IUserRepository;
-import org.apache.http.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,6 +26,9 @@ public class UserService implements UserDetailsService {
 
 	@Autowired
 	JwtService jwtService;
+
+	@Autowired
+	RefreshTokenService refreshTokenService;
 
 	@Autowired
 	private IUserRepository userRepository;
@@ -76,12 +80,13 @@ public class UserService implements UserDetailsService {
 		@SuppressWarnings("all")
 		User currentUser = this.findByUsername(userPrinciple.getUsername()).get();
 
-		String refresh_token = jwtService.generateRefreshTokenLogin(authentication);
+		RefreshToken refresh_token = refreshTokenService.createRefreshToken(currentUser.getId());
+
 		JwtResponse jwtResponse = new JwtResponse(
 			currentUser.getId(),
 			token,
 			currentUser.getUsername(),
-			refresh_token,
+			refresh_token.getToken(),
 			userPrinciple.getAuthorities(),
 			userPrinciple.isAccountNonExpired()
 			);

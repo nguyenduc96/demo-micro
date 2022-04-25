@@ -1,5 +1,6 @@
-package com.example.authserver.model;
+package com.example.authserver.domain.model;
 
+import com.example.authserver.domain.dto.UserDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

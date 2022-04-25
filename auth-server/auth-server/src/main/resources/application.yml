@@ -36,5 +36,5 @@ test:
  jwt:
   value:
     secret-key: test_project
-    expired-time: 86400
+    expired-time: 30
     refresh-time: 864000

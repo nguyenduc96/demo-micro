@@ -1,20 +1,15 @@
 package com.example.authserver.service;
 
 import com.example.authserver.helper.ConfigProperties;
-import com.example.authserver.model.UserPrinciple;
+import com.example.authserver.domain.model.UserPrinciple;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 @Service
 public class JwtService {
@@ -36,18 +31,6 @@ public class JwtService {
 			.compact();
 	}
 
-	public String generateRefreshTokenLogin(Authentication authentication) {
-		UserPrinciple userPrincipal = (UserPrinciple) authentication.getPrincipal();
-
-		return Jwts.builder()
-			.setSubject((userPrincipal.getUsername()))
-			.setIssuedAt(new Date())
-			.setExpiration(new Date((new Date()).getTime() + configProperties.getRefreshTime() * 1000))
-			.signWith(SignatureAlgorithm.HS512, configProperties.getSecretKey())
-			.compact();
-	}
-
-
 	@SuppressWarnings("all")
 	public boolean validateJwtToken(String authToken) {
 		try {
@@ -55,16 +38,12 @@ public class JwtService {
 			return true;
 		} catch (SignatureException e) {
 			logger.error("Invalid JWT signature -> Message: {} ", e);
-			throw new RuntimeException("");
 		} catch (MalformedJwtException e) {
 			logger.error("Invalid JWT token -> Message: {}", e);
-			throw new RuntimeException("");
 		} catch (ExpiredJwtException e) {
 			logger.error("Expired JWT token -> Message: {}", e);
-			throw new RuntimeException("Expired JWT token");
 		} catch (UnsupportedJwtException e) {
 			logger.error("Unsupported JWT token -> Message: {}", e);
-			throw new RuntimeException("");
 		} catch (IllegalArgumentException e) {
 			logger.error("JWT claims string is empty -> Message: {}", e);
 		}
@@ -77,5 +56,12 @@ public class JwtService {
 			.setSigningKey(configProperties.getSecretKey())
 			.parseClaimsJws(token)
 			.getBody().getSubject();
+	}
+
+	public String generateTokenFromUsername(String username) {
+		return Jwts.builder().setSubject(username).setIssuedAt(new Date())
+			.setExpiration(new Date((new Date()).getTime() + configProperties.getExpiredTime()))
+			.signWith(SignatureAlgorithm.HS512, configProperties.getSecretKey())
+			.compact();
 	}
 }

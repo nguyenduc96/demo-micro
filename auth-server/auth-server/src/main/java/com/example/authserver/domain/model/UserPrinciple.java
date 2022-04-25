@@ -1,4 +1,4 @@
-package com.example.authserver.model;
+package com.example.authserver.domain.model;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;

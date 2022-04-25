@@ -1,5 +1,6 @@
-package com.example.authserver.model;
+package com.example.authserver.domain.dto;
 
+import com.example.authserver.domain.model.User;
 import lombok.Data;
 
 @Data

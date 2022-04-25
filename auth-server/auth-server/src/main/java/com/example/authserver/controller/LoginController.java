@@ -1,10 +1,14 @@
 package com.example.authserver.controller;
 
 
+import com.example.authserver.domain.dto.TokenRefreshRes;
+import com.example.authserver.domain.model.RefreshToken;
 import com.example.authserver.helper.ResponseAPI;
-import com.example.authserver.model.User;
-import com.example.authserver.model.UserDTO;
-import com.example.authserver.model.UserPrinciple;
+import com.example.authserver.domain.dto.TokenRefreshReq;
+import com.example.authserver.domain.dto.UserDTO;
+import com.example.authserver.helper.TokenRefreshException;
+import com.example.authserver.service.JwtService;
+import com.example.authserver.service.RefreshTokenService;
 import com.example.authserver.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +32,12 @@ public class LoginController {
 	AuthenticationManager authenticationManager;
 
 	@Autowired
+	RefreshTokenService refreshTokenService;
+
+	@Autowired
+	JwtService jwtService;
+
+	@Autowired
 	PasswordEncoder passwordEncoder;
 
 	@PostMapping("/login")
@@ -48,5 +58,20 @@ public class LoginController {
 			new SecurityContextLogoutHandler().logout(request, response, authentication);
 		}
 		return new ResponseAPI<>(HttpStatus.OK, "Success");
+	}
+
+	@PostMapping("/refresh-token")
+	public ResponseAPI<?> refreshToken(@RequestBody TokenRefreshReq tokenRefreshReq, Authentication authentication) {
+		String tokenRq = tokenRefreshReq.getRefreshToken();
+
+		return refreshTokenService.findByToken(tokenRq)
+			.map(refreshTokenService::verifyExpiration)
+			.map(RefreshToken::getUser)
+			.map(user -> {
+				String token = jwtService.generateTokenFromUsername(user.getUsername());
+				return new ResponseAPI<>(HttpStatus.OK ,new TokenRefreshRes(token, tokenRq));
+			})
+			.orElseThrow(() -> new TokenRefreshException(tokenRq,
+				"Refresh token is not in database!"));
 	}
 }
